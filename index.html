@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resume Builder Pro</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- SEO & Social -->
+  <meta name="description" content="Resume Builder Pro — build beautiful, ATS-friendly resumes with live preview and PDF export.">
+  <meta name="theme-color" content="#21808d">
+  <meta property="og:title" content="Resume Builder Pro">
+  <meta property="og:description" content="Build beautiful, ATS-friendly resumes with live preview and PDF export.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://resumebuilderpro.app">
+  <meta property="og:image" content="https://resumebuilderpro.app/og-image.png">
+  <link rel="icon" href="favicon.png" type="image/png">
+
+</head>
+<body>
+  <noscript>Please enable JavaScript to use Resume Builder Pro.</noscript>
+  <div id="toast-container" role="status" aria-live="polite" aria-atomic="true"></div>
+
+  <header class="header">
+    <div class="header-content">
+      <h1 class="header-title">Resume Builder Pro</h1>
+      <div class="header-actions">
+        <button id="theme-toggle" class="btn btn--icon" aria-label="Toggle theme">
+          <span class="theme-icon" id="theme-icon">🌙</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    <div class="form-section">
+      <div class="ats-score-card">
+        <div class="ats-score-header">
+          <h2>ATS Compatibility Score</h2>
+          <button class="info-tooltip" aria-label="ATS Score Information">ℹ️</button>
+        </div>
+        <div class="ats-score-display">
+          <div class="score-circle">
+            <svg class="score-svg" width="120" height="120" viewBox="0 0 120 120">
+              <circle class="score-bg" cx="60" cy="60" r="54" />
+              <circle class="score-progress" cx="60" cy="60" r="54" id="score-circle" />
+            </svg>
+            <div class="score-value" id="score-value">0</div>
+          </div>
+          <div class="score-suggestions" id="score-suggestions">
+            <p>Start filling your resume to see your ATS score!</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons">
+        <button id="save-btn" class="btn btn--success" aria-label="Save progress">
+          💾 Save Progress
+        </button>
+        <button id="load-btn" class="btn btn--info" aria-label="Load saved resume">
+          📂 Load Saved
+        </button>
+        <button id="clear-btn" class="btn btn--danger" aria-label="Clear all data">
+          🗑️ Clear All
+        </button>
+      </div>
+      <div id="last-saved" class="last-saved-info"></div>
+
+      <form id="resume-form" class="resume-form">
+        <section class="form-section-block" id="section-personal">
+          <div class="section-header">
+            <h2>Personal Information</h2>
+            <button type="button" class="section-toggle" aria-label="Collapse section">−</button>
+          </div>
+          <div class="section-content">
+            <p class="section-tip">💡 Include professional email and LinkedIn profile. Add portfolio link if available.</p>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="name" class="form-label">Full Name <span class="required">*</span></label>
+                <input type="text" id="name" class="form-control" placeholder="e.g., Sarah Chen" required aria-required="true">
+              </div>
+              <div class="form-group">
+                <label for="email" class="form-label">Email <span class="required">*</span></label>
+                <input type="email" id="email" class="form-control" placeholder="e.g., sarah.chen@email.com" required aria-required="true">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="phone" class="form-label">Phone <span class="required">*</span></label>
+                <input type="tel" id="phone" class="form-control" placeholder="e.g., +1 (555) 123-4567" required aria-required="true">
+              </div>
+              <div class="form-group">
+                <label for="location" class="form-label">Location</label>
+                <input type="text" id="location" class="form-control" placeholder="e.g., San Francisco, CA">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="linkedin" class="form-label">LinkedIn</label>
+                <input type="url" id="linkedin" class="form-control" placeholder="e.g., linkedin.com/in/sarahchen">
+              </div>
+              <div class="form-group">
+                <label for="portfolio" class="form-label">Portfolio</label>
+                <input type="url" id="portfolio" class="form-control" placeholder="e.g., sarahchen.dev">
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section-block" id="section-summary">
+          <div class="section-header">
+            <h2>Professional Summary</h2>
+            <button type="button" class="section-toggle" aria-label="Collapse section">−</button>
+          </div>
+          <div class="section-content">
+            <p class="section-tip">💡 Write 2-3 sentences highlighting your key strengths and career goals. Use action words.</p>
+            <div class="form-group">
+              <label for="summary" class="form-label">Summary</label>
+              <textarea id="summary" class="form-control" rows="4" placeholder="Brief overview of your professional background and key strengths..."></textarea>
+              <span class="char-count" id="summary-count">0 / 500</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section-block" id="section-education">
+          <div class="section-header">
+            <h2>Education</h2>
+            <button type="button" class="section-toggle" aria-label="Collapse section">−</button>
+          </div>
+          <div class="section-content">
+            <p class="section-tip">💡 List most recent education first. Include GPA if 3.5 or higher.</p>
+            <div id="education-list"></div>
+            <button type="button" id="add-education" class="btn btn--secondary btn-add">
+              ➕ Add Education
+            </button>
+          </div>
+        </section>
+
+        <section class="form-section-block" id="section-experience">
+          <div class="section-header">
+            <h2>Work Experience</h2>
+            <button type="button" class="section-toggle" aria-label="Collapse section">−</button>
+          </div>
+          <div class="section-content">
+            <p class="section-tip">💡 Use bullet points starting with action verbs. Quantify achievements with metrics.</p>
+            <div id="experience-list"></div>
+            <button type="button" id="add-experience" class="btn btn--secondary btn-add">
+              ➕ Add Experience
+            </button>
+          </div>
+        </section>
+
+        <section class="form-section-block" id="section-skills">
+          <div class="section-header">
+            <h2>Skills</h2>
+            <button type="button" class="section-toggle" aria-label="Collapse section">−</button>
+          </div>
+          <div class="section-content">
+            <p class="section-tip">💡 Separate technical and soft skills. List 6-10 most relevant skills.</p>
+            <div class="form-group">
+              <label for="technical-skills" class="form-label">Technical Skills</label>
+              <textarea id="technical-skills" class="form-control" rows="3" placeholder="JavaScript, React, Node.js, Python, AWS... (comma-separated)"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="soft-skills" class="form-label">Soft Skills</label>
+              <textarea id="soft-skills" class="form-control" rows="2" placeholder="Team Leadership, Problem Solving, Communication... (comma-separated)"></textarea>
+            </div>
+          </div>
+        </section>
+
+        <section class="form-section-block" id="section-projects">
+          <div class="section-header">
+            <h2>Projects</h2>
+            <button type="button" class="section-toggle" aria-label="Collapse section">−</button>
+          </div>
+          <div class="section-content">
+            <p class="section-tip">💡 Highlight 2-3 key projects with technologies used. Include GitHub links.</p>
+            <div id="projects-list"></div>
+            <button type="button" id="add-project" class="btn btn--secondary btn-add">
+              ➕ Add Project
+            </button>
+          </div>
+        </section>
+
+        <section class="form-section-block" id="section-certifications">
+          <div class="section-header">
+            <h2>Certifications</h2>
+            <button type="button" class="section-toggle" aria-label="Collapse section">−</button>
+          </div>
+          <div class="section-content">
+            <p class="section-tip">💡 List industry-recognized certifications with issuing organization and year.</p>
+            <div id="certifications-list"></div>
+            <button type="button" id="add-certification" class="btn btn--secondary btn-add">
+              ➕ Add Certification
+            </button>
+          </div>
+        </section>
+      </form>
+    </div>
+
+    <div class="preview-section">
+      <div class="preview-header">
+        <h2>Live Preview</h2>
+        <div class="preview-actions">
+          <button id="download-pdf" class="btn btn--primary" aria-label="Download as PDF">
+            <span id="pdf-text">📄 Download PDF</span>
+            <span id="pdf-loader" class="loader" style="display: none;"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="template-selector">
+        <button class="template-card active" data-template="modern" aria-label="Modern template">
+          <div class="template-preview template-modern"></div>
+          <span class="template-name">Modern</span>
+        </button>
+        <button class="template-card" data-template="professional" aria-label="Professional template">
+          <div class="template-preview template-professional"></div>
+          <span class="template-name">Professional</span>
+        </button>
+        <button class="template-card" data-template="minimal" aria-label="Minimal template">
+          <div class="template-preview template-minimal"></div>
+          <span class="template-name">Minimal</span>
+        </button>
+        <button class="template-card" data-template="creative" aria-label="Creative template">
+          <div class="template-preview template-creative"></div>
+          <span class="template-name">Creative</span>
+        </button>
+        <button class="template-card" data-template="classic" aria-label="Classic template">
+          <div class="template-preview template-classic"></div>
+          <span class="template-name">Classic</span>
+        </button>
+      </div>
+
+      <div class="preview-container">
+        <div id="resume-preview" class="resume-preview template-modern"></div>
+      </div>
+    </div>
+  </main>
+
+  <div id="confirm-modal" class="modal" role="dialog" aria-labelledby="modal-title" aria-modal="true" style="display: none;">
+    <div class="modal-content">
+      <h3 id="modal-title">Confirm Action</h3>
+      <p id="modal-message">Are you sure?</p>
+      <div class="modal-actions">
+        <button id="modal-confirm" class="btn btn--danger">Confirm</button>
+        <button id="modal-cancel" class="btn btn--secondary">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>a
